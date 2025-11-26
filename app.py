@@ -105,6 +105,11 @@ def inject_custom_css():
 def create_certificate(data):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
+    
+    # --- PADDING/MARGIN CONFIGURATION ---
+    # Border is at 10mm. We set margins to 25mm to ensure text doesn't touch it.
+    pdf.set_left_margin(25)
+    pdf.set_right_margin(25)
 
     # --- FONT LOGIC (SMART FALLBACK) ---
     # We attempt to load custom fonts. If files are missing, we fallback to Helvetica.
@@ -115,13 +120,11 @@ def create_certificate(data):
     
     try:
         # Attempt to load custom fonts (requires files in same directory)
-        # Updated to match user filenames: font-regular.ttf, font-bold.ttf
         pdf.add_font('Montserrat', '', 'font-regular.ttf', uni=True)
         pdf.add_font('Montserrat', 'B', 'font-bold.ttf', uni=True)
         font_main = 'Montserrat'
         
         try:
-            # Updated to match user filename: font-semi.ttf
             pdf.add_font('Montserrat-Semi', '', 'font-semi.ttf', uni=True)
             font_label = 'Montserrat-Semi'
             label_style = '' # Custom semi-bold font doesn't need 'B' style flag
@@ -131,12 +134,10 @@ def create_certificate(data):
             label_style = 'B'
             
     except:
-        # If main fonts missing, we stay with Helvetica defaults
-        # We silently handle this to prevent app crash
         pass
 
     # --- DESIGN ---
-    # Gold Border
+    # Gold Border - Drawn absolutely, ignores margins
     pdf.set_line_width(1)
     pdf.set_draw_color(212, 175, 55) # Sovereign Gold
     pdf.rect(10, 10, 190, 277)
@@ -177,9 +178,9 @@ def create_certificate(data):
 
     pdf.ln(10)
     
-    # DIVIDER LINE
+    # DIVIDER LINE - Adjusted to match the 25mm margins
     pdf.set_draw_color(200, 200, 200)
-    pdf.line(20, pdf.get_y(), 190, pdf.get_y())
+    pdf.line(25, pdf.get_y(), 185, pdf.get_y())
     pdf.ln(10)
 
     # METADATA BOX
@@ -189,6 +190,7 @@ def create_certificate(data):
 
     # SEAL IMAGE (Safely ignored if missing)
     try:
+        # Centered roughly at bottom
         pdf.image("seal.png", x=85, y=230, w=40)
     except:
         pass
@@ -199,11 +201,20 @@ def create_certificate(data):
 # VIEW: AUTHENTICATED APP
 # -----------------------------------------------------------------------------
 def authenticated_app():
-    # SIDEBAR (Now only contains Logout)
+    # SIDEBAR
     with st.sidebar:
-        st.title("SECURE VAULT")
+        st.title("NOETIC INPUT")
         st.markdown("---")
-        st.caption("Session Active")
+        artist = st.text_input("Artist Name", value="Unknown Artist")
+        track = st.text_input("Track Title", value="Untitled No. 1")
+        bpm = st.number_input("BPM", min_value=60, max_value=300, value=120)
+        track_key = st.text_input("Musical Key", value="C Major")
+        reg_date = st.date_input("Registration Date", date.today())
+        
+        st.markdown("### 🔒 SECURE VAULT")
+        st.caption("All entries are immutable upon generation.")
+        
+        st.markdown("---")
         if st.button("LOGOUT"):
             st.session_state['authenticated'] = False
             st.rerun()
@@ -213,36 +224,18 @@ def authenticated_app():
     st.markdown(f"**PROTOCOL:** ESTABLISHING TRACK LINEAGE")
     st.markdown("---")
 
-    # --- TRACK DETAILS (Moved from Sidebar to Main) ---
-    st.subheader("I. TRACK METADATA")
-    
-    col_meta1, col_meta2 = st.columns(2)
-    with col_meta1:
-        artist = st.text_input("Artist Name", value="Unknown Artist")
-        bpm = st.number_input("BPM", min_value=60, max_value=300, value=120)
-        reg_date = st.date_input("Registration Date", date.today())
-    
-    with col_meta2:
-        track = st.text_input("Track Title", value="Untitled No. 1")
-        track_key = st.text_input("Musical Key", value="C Major")
-
-    st.markdown("---")
-    
-    # --- ORIGIN CHECKS ---
-    st.subheader("II. COMPOSITION ANALYSIS")
-
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("**HUMAN ORIGIN**")
-        st.caption("Check all elements created by biological cognition:")
+        st.subheader("HUMAN ORIGIN")
+        st.markdown("Check all elements created by biological cognition:")
         h_lyrics = st.checkbox("Lyrics (Written by Human)")
         h_melody = st.checkbox("Melody (Composed by Human)")
         h_prod = st.checkbox("Production (Arranged by Human)")
 
     with col2:
-        st.markdown("**SYNTHETIC ASSISTANCE**")
-        st.caption("Select AI models utilized in the workflow:")
+        st.subheader("SYNTHETIC ASSISTANCE")
+        st.markdown("Select AI models utilized in the workflow:")
         ai_tool = st.selectbox(
             "Primary AI Framework",
             ["None", "Suno", "Udio", "RVC", "Stable Audio", "Custom Model"]
@@ -352,3 +345,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
