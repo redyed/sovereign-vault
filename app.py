@@ -106,19 +106,34 @@ def create_certificate(data):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
 
-    # --- REGISTER FONTS ---
-    # 1. Main Family (Regular & Bold)
+    # --- FONT LOGIC (SMART FALLBACK) ---
+    # We attempt to load custom fonts. If files are missing, we fallback to Helvetica.
+    
+    font_main = "Helvetica"     # Default Standard Font
+    font_label = "Helvetica"    # Default Standard Font
+    label_style = "B"           # Bold for labels if using standard font
+    
     try:
-        pdf.add_font('Montserrat', '', 'font-reg.ttf', uni=True)
+        # Attempt to load custom fonts (requires files in same directory)
+        # Updated to match user filenames: font-regular.ttf, font-bold.ttf
+        pdf.add_font('Montserrat', '', 'font-regular.ttf', uni=True)
         pdf.add_font('Montserrat', 'B', 'font-bold.ttf', uni=True)
+        font_main = 'Montserrat'
+        
+        try:
+            # Updated to match user filename: font-semi.ttf
+            pdf.add_font('Montserrat-Semi', '', 'font-semi.ttf', uni=True)
+            font_label = 'Montserrat-Semi'
+            label_style = '' # Custom semi-bold font doesn't need 'B' style flag
+        except:
+            # If semi-bold missing, use Main Bold
+            font_label = 'Montserrat'
+            label_style = 'B'
+            
     except:
-        st.error("Font files missing. Please upload font-reg.ttf and font-bold.ttf")
-
-    # 2. Secondary Family (Semi-Bold) - Registered as 'Regular' style of a new family
-    try:
-        pdf.add_font('Montserrat-Semi', '', 'font-semi.ttf', uni=True)
-    except:
-        pass 
+        # If main fonts missing, we stay with Helvetica defaults
+        # We silently handle this to prevent app crash
+        pass
 
     # --- DESIGN ---
     # Gold Border
@@ -126,14 +141,14 @@ def create_certificate(data):
     pdf.set_draw_color(212, 175, 55) # Sovereign Gold
     pdf.rect(10, 10, 190, 277)
 
-    # HEADER (Uses Montserrat Bold)
-    pdf.set_font("Montserrat", 'B', 30)
+    # HEADER
+    pdf.set_font(font_main, 'B', 30)
     pdf.set_text_color(0, 0, 0)
     pdf.ln(20)
     pdf.cell(0, 10, "CERTIFICATE OF SOVEREIGNTY", align='C', ln=True)
 
-    # SUBHEADER (Uses Montserrat Regular)
-    pdf.set_font("Montserrat", '', 12)
+    # SUBHEADER
+    pdf.set_font(font_main, '', 12)
     pdf.set_text_color(100, 100, 100) # Grey
     pdf.cell(0, 10, "OFFICIAL CHAIN OF TITLE RECORD", align='C', ln=True)
 
@@ -152,12 +167,12 @@ def create_certificate(data):
     ]
 
     for label, value in fields:
-        # LABEL: Uses Semi-Bold (The "iPhone" Look)
-        pdf.set_font("Montserrat-Semi", '', 12) 
+        # LABEL
+        pdf.set_font(font_label, label_style, 12) 
         pdf.cell(50, 10, label, border=0)
         
-        # VALUE: Uses Regular
-        pdf.set_font("Montserrat", '', 12)
+        # VALUE
+        pdf.set_font(font_main, '', 12)
         pdf.cell(0, 10, str(value), border=0, ln=True)
 
     pdf.ln(10)
@@ -167,12 +182,12 @@ def create_certificate(data):
     pdf.line(20, pdf.get_y(), 190, pdf.get_y())
     pdf.ln(10)
 
-    # METADATA BOX (Uses Regular, Small)
-    pdf.set_font("Montserrat", '', 10)
+    # METADATA BOX
+    pdf.set_font(font_main, '', 10)
     pdf.set_text_color(80, 80, 80)
     pdf.multi_cell(0, 8, f"METADATA HASH:\n{data['meta_string']}", align='C')
 
-    # SEAL IMAGE
+    # SEAL IMAGE (Safely ignored if missing)
     try:
         pdf.image("seal.png", x=85, y=230, w=40)
     except:
