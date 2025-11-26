@@ -184,7 +184,7 @@ def create_certificate(data):
     pdf.set_font("Times", "B", 10)
     pdf.cell(30, 10, "OFFICIAL", 0, 0, 'C')
 
-    return pdf.output(dest='S').encode('latin-1')
+    return bytes(pdf.output())
 
 # -----------------------------------------------------------------------------
 # VIEW: AUTHENTICATED APP
