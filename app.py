@@ -53,12 +53,12 @@ def inject_custom_css():
             font-weight: bold;
         }}
 
-        /* BUTTON STYLING - GOLD ACCENT */
-        div.stButton > button {{
-            background-color: {COLOR_GOLD};
-            color: #000000;
+        /* BUTTON STYLING - GOLD ACCENT (Including Download Buttons) */
+        div.stButton > button, div.stDownloadButton > button {{
+            background-color: {COLOR_GOLD} !important;
+            color: #000000 !important;
             border-radius: 4px;
-            border: 1px solid {COLOR_GOLD};
+            border: 1px solid {COLOR_GOLD} !important;
             padding: 10px 24px;
             font-weight: bold;
             text-transform: uppercase;
@@ -66,10 +66,10 @@ def inject_custom_css():
             width: 100%;
         }}
         
-        div.stButton > button:hover {{
-            background-color: #F8F8F8;
-            color: {COLOR_GOLD};
-            border-color: {COLOR_GOLD};
+        div.stButton > button:hover, div.stDownloadButton > button:hover {{
+            background-color: #F8F8F8 !important;
+            color: {COLOR_GOLD} !important;
+            border-color: {COLOR_GOLD} !important;
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
         }}
 
