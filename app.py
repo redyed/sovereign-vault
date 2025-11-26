@@ -199,20 +199,11 @@ def create_certificate(data):
 # VIEW: AUTHENTICATED APP
 # -----------------------------------------------------------------------------
 def authenticated_app():
-    # SIDEBAR
+    # SIDEBAR (Now only contains Logout)
     with st.sidebar:
-        st.title("NOETIC INPUT")
+        st.title("SECURE VAULT")
         st.markdown("---")
-        artist = st.text_input("Artist Name", value="Unknown Artist")
-        track = st.text_input("Track Title", value="Untitled No. 1")
-        bpm = st.number_input("BPM", min_value=60, max_value=300, value=120)
-        track_key = st.text_input("Musical Key", value="C Major")
-        reg_date = st.date_input("Registration Date", date.today())
-        
-        st.markdown("### 🔒 SECURE VAULT")
-        st.caption("All entries are immutable upon generation.")
-        
-        st.markdown("---")
+        st.caption("Session Active")
         if st.button("LOGOUT"):
             st.session_state['authenticated'] = False
             st.rerun()
@@ -222,18 +213,36 @@ def authenticated_app():
     st.markdown(f"**PROTOCOL:** ESTABLISHING TRACK LINEAGE")
     st.markdown("---")
 
+    # --- TRACK DETAILS (Moved from Sidebar to Main) ---
+    st.subheader("I. TRACK METADATA")
+    
+    col_meta1, col_meta2 = st.columns(2)
+    with col_meta1:
+        artist = st.text_input("Artist Name", value="Unknown Artist")
+        bpm = st.number_input("BPM", min_value=60, max_value=300, value=120)
+        reg_date = st.date_input("Registration Date", date.today())
+    
+    with col_meta2:
+        track = st.text_input("Track Title", value="Untitled No. 1")
+        track_key = st.text_input("Musical Key", value="C Major")
+
+    st.markdown("---")
+    
+    # --- ORIGIN CHECKS ---
+    st.subheader("II. COMPOSITION ANALYSIS")
+
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("HUMAN ORIGIN")
-        st.markdown("Check all elements created by biological cognition:")
+        st.markdown("**HUMAN ORIGIN**")
+        st.caption("Check all elements created by biological cognition:")
         h_lyrics = st.checkbox("Lyrics (Written by Human)")
         h_melody = st.checkbox("Melody (Composed by Human)")
         h_prod = st.checkbox("Production (Arranged by Human)")
 
     with col2:
-        st.subheader("SYNTHETIC ASSISTANCE")
-        st.markdown("Select AI models utilized in the workflow:")
+        st.markdown("**SYNTHETIC ASSISTANCE**")
+        st.caption("Select AI models utilized in the workflow:")
         ai_tool = st.selectbox(
             "Primary AI Framework",
             ["None", "Suno", "Udio", "RVC", "Stable Audio", "Custom Model"]
